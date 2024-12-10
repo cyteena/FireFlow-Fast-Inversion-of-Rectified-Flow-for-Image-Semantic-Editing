@@ -17,7 +17,7 @@ import gradio as gr
 import numpy as np
 from transformers import pipeline
 
-from flux.sampling import denoise, get_schedule, prepare, unpack
+from flux.sampling import denoise_fireflow, get_schedule, prepare, unpack
 from flux.util import (configs, embed_watermark, load_ae, load_clip, load_flow_model, load_t5)
 
 @dataclass
@@ -117,6 +117,9 @@ class FluxEditor:
         info = {}
         info['feature'] = {}
         info['inject_step'] = inject_step
+        info['start_layer_index'] = 0
+        info['end_layer_index'] = 37
+        info['reuse_v']= True
 
         if not os.path.exists(self.feature_path):
             os.mkdir(self.feature_path)
@@ -134,14 +137,14 @@ class FluxEditor:
 
         # inversion initial noise
         with torch.no_grad():
-            z, info = denoise(self.model, **inp, timesteps=timesteps, guidance=1, inverse=True, info=info)
+            z, info = denoise_fireflow(self.model, **inp, timesteps=timesteps, guidance=1, inverse=True, info=info)
         
         inp_target["img"] = z
 
         timesteps = get_schedule(opts.num_steps, inp_target["img"].shape[1], shift=(self.name != "flux-schnell"))
 
         # denoise initial noise
-        x, _ = denoise(self.model, **inp_target, timesteps=timesteps, guidance=guidance, inverse=False, info=info)
+        x, _ = denoise_fireflow(self.model, **inp_target, timesteps=timesteps, guidance=guidance, inverse=False, info=info)
 
         # offload model, load autoencoder to gpu
         if self.offload:
@@ -210,8 +213,8 @@ def create_demo(model_name: str, device: str = "cuda" if torch.cuda.is_available
             
             with gr.Column():
                 with gr.Accordion("Advanced Options", open=True):
-                    num_steps = gr.Slider(1, 30, 25, step=1, label="Number of steps")
-                    inject_step = gr.Slider(1, 15, 5, step=1, label="Number of inject steps")
+                    num_steps = gr.Slider(1, 30, 8, step=1, label="Number of steps")
+                    inject_step = gr.Slider(1, 15, 1, step=1, label="Number of inject steps")
                     guidance = gr.Slider(1.0, 10.0, 2, step=0.1, label="Guidance", interactive=not is_schnell)
                     # seed = gr.Textbox(0, label="Seed (-1 for random)", visible=False)
                     # add_sampling_metadata = gr.Checkbox(label="Add sampling parameters to metadata?", value=False)

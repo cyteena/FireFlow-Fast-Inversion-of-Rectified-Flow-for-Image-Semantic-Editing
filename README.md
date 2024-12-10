@@ -1,102 +1,79 @@
-<div align="center">
-  
-# Taming Rectified Flow for Inversion and Editing
+# FireFlow: Fast Inversion of Rectified Flow for Image Semantic Editing
 
-[Jiangshan Wang](https://scholar.google.com/citations?user=HoKoCv0AAAAJ&hl=en)<sup>1,2</sup>, [Junfu Pu](https://pujunfu.github.io/)<sup>2</sup>, [Zhongang Qi](https://scholar.google.com/citations?hl=en&user=zJvrrusAAAAJ&view_op=list_works&sortby=pubdate)<sup>2</sup>, [Jiayi Guo](https://www.jiayiguo.net)<sup>1</sup>, [Yue Ma](https://mayuelala.github.io/)<sup>3</sup>, <br> [Nisha Huang](https://scholar.google.com/citations?user=wTmPkSsAAAAJ&hl=en)<sup>1</sup>, [Yuxin Chen](https://scholar.google.com/citations?hl=en&user=dEm4OKAAAAAJ)<sup>2</sup>, [Xiu Li](https://scholar.google.com/citations?user=Xrh1OIUAAAAJ&hl=en&oi=ao)<sup>1</sup>, [Ying Shan](https://scholar.google.com/citations?hl=en&user=4oXBp9UAAAAJ&view_op=list_works&sortby=pubdate)<sup>2</sup>
+> TL;DR: An 8-step inversion and 8-step editing process works effectively with the FLUX-dev model. (around 3x speedup with comparable results or even better)
 
-<sup>1</sup> Tsinghua University,  <sup>2</sup> Tencent ARC Lab,  <sup>3</sup> HKUST  
+## [1] Preview
+<img src="assets/teaser-1.jpg" width="1080px"/>
 
-[![arXiv](https://img.shields.io/badge/arXiv-RFSolverEdit-b31b1b.svg)](https://arxiv.org/abs/2411.04746)
-<a href='https://rf-solver-edit.github.io/'><img src='https://img.shields.io/badge/Project-Page-Green'></a>
+Inspired by recent ReFlow based editing approaches, we propose a novel numerical solver for ReFlow models, achieving second-order precision at the computational cost of a first-order method, providing a scalable and efficient solution for tasks such as image reconstruction and semantic editing.
 
-</div>
-
-
-
-
-
-<p>
-We propose <strong>RF-Solver</strong> to solve the rectified flow ODE with less error, thus enhancing both sampling quality and inversion-reconstruction accuracy for rectified-flow-based generative models. Furthermore, we propose <strong>RF-Edit</strong> to leverage the <strong>RF-Solver</strong> for image and video editing tasks. Our methods achieve impressive performance on various tasks, including text-to-image generation, image/video inversion, and image/video editing. 
-</p>
-
-
-
-<p align="center">
-<img src="assets/repo_figures/Picture1.jpg" width="1080px"/>
-</p>
-
-# 🔥 News
-- [2024.11.18] More examples for style transfer are available!
-- [2024.11.18] Gradio Demo for image editing is available!
-- [2024.11.11] The homepage of the project is available!
-- [2024.11.08] Code for image editing is released!
-- [2024.11.08] Paper released!
-
-# 👨‍💻 ToDo
-- ☑️ Release the gradio demo
-- ☑️ Release scripts to for more image editing cases
-- ☐ Release the code for video editing
-
-
-# 📖 Method
-## RF-Solver
-<p>
-<img src="assets/repo_figures/Picture2.jpg" width="1080px"/>
-We derive the exact formulation of the solution for Rectified Flow ODE. The non-linear part in this solution is processed by Taylor Expansion. Through higher order expansion, the approximation error in the solution is significantly reduced, thus achieving impressive performance on both text-to-image sampling and image/video inversion.
-</p>
-
-## RF-Edit
-<p>
-<img src="assets/repo_figures/Picture3.jpg" width="1080px"/>
-Based on RF-Solver, we further propose the RF-Edit for image and video editing. RF-Edit framework leverages the features from inversion in the denoising process, which enables high-quality editing while preserving the structual information of source image/video. RF-Edit contains two sub-modules, espectively for image editing and video editing.
-</p>
-
-# 🛠️ Code Setup
-The environment of our code is the same as FLUX, you can refer to the [official repo](https://github.com/black-forest-labs/flux/tree/main) of FLUX, or running the following command to construct the environment.
-```
-conda create --name RF-Solver-Edit python=3.10
-conda activate RF-Solver-Edit
+## [2] How to install?
+The code environment is consistent with FLUX and the pioneering RF-Solver-Edit. You can refer to the [official FLUX repository](https://github.com/black-forest-labs/flux/tree/main) for details or use the following command to set up the environment.
+```shell
+conda create --name Fireflow python=3.10
+conda activate Fireflow
 pip install -e ".[all]"
 ```
-# 🚀 Examples for Image Editing
-We have provided several scripts to reproduce the results in the paper, mainly including 3 types of editing: Stylization, Adding, Replacing. We suggest to run the experiment on a single A100 GPU.
+## [3] Demo Scripts: Inversion and Reconstruction 
+We have provided a script to reproduce the results presented in the paper. Additional comparison results can be found in <td width="30%" align="center"><a href="src/inversion_reconstruction.sh">inversion_reconstruction.sh</a></td>.
+```shell
+python edit.py  --source_prompt "A young boy is playing with a toy airplane on the grassy front lawn of a suburban house, with a blue sky and fluffy clouds above." \
+                --target_prompt "A young boy is playing with a toy airplane on the grassy front lawn of a suburban house, with a blue sky and fluffy clouds above." \
+                --guidance 1 \
+                --source_img_dir 'examples/source/boy.jpg' \
+                --num_steps 10 \
+                --offload \
+                --inject 0 \
+                --sampling_strategy 'fireflow' \
+                --output_prefix 'fireflow' \
+                --output_dir 'examples/edit-result/dog' 
+```
+<img src="assets/teaser-2.jpg" width="1080px"/>
 
-## Stylization
+## [4] Demo Scripts: Semantic Image Editing
+We have also provided several scripts to reproduce the results presented in the paper, focusing on three main types of editing: stylization, addition, and replacement.
+
+## [4.1] Stylization
 <table class="center">
 <tr>
   <td width=10% align="center">Ref Style</td>
-  <td width=30% align="center"><img src="assets/repo_figures/examples/source/nobel.jpg" raw=true></td>
-	<td width=30% align="center"><img src="assets/repo_figures/examples/source/art.jpg" raw=true></td>
-  <td width=30% align="center"><img src="assets/repo_figures/examples/source/cartoon.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/source/nobel.jpg" raw=true></td>
+	<td width=20% align="center"><img src="assets/repo_figures/examples/source/art.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/source/art.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/source/cartoon.jpg" raw=true></td>
 </tr>
 <tr>
   <td width="10%" align="center">Editing Scripts</td>
-  <td width="30%" align="center"><a href="src/run_nobel_trump.sh">Trump</a></td>
-  <td width="30%" align="center"><a href="src/run_art_mari.sh"> Marilyn Monroe</a></td>
-  <td width="30%" align="center"><a href="src/run_cartoon_ein.sh">Einstein</a></td>
+  <td width="20%" align="center"><a href="src/run_nobel_trump.sh">Trump</a></td>
+  <td width="20%" align="center"><a href="src/run_art_mari.sh"> Marilyn Monroe</a></td>
+  <td width="20%" align="center"><a href="src/run_art_mari.sh"> Marilyn Monroe (More Expressive)</a></td>
+  <td width="20%" align="center"><a href="src/run_cartoon_ein.sh">Einstein</a></td>
 </tr>
 <tr>
   <td width=10% align="center">Edtied image</td>
-  <td width=30% align="center"><img src="assets/repo_figures/examples/edit/nobel_Trump.jpg" raw=true></td>
-	<td width=30% align="center"><img src="assets/repo_figures/examples/edit/art_mari.jpg" raw=true></td>
-  <td width=30% align="center"><img src="assets/repo_figures/examples/edit/cartoon_ein.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/nobel_Trump.jpg" raw=true></td>
+	<td width=20% align="center"><img src="assets/repo_figures/examples/edit/art_mari.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/art_mari_v2.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/cartoon_ein.jpg" raw=true></td>
 </tr>
 
 <tr>
   <td width="10%" align="center">Editing Scripts</td>
-  <td width="30%" align="center"><a href="src/run_nobel_biden.sh">Biden</a></td>
-  <td width="30%" align="center"><a href="src/run_art_batman.sh">Batman</a></td>
-  <td width="30%" align="center"><a href="src/run_cartoon_herry.sh">Herry Potter</a></td>
+  <td width="20%" align="center"><a href="src/run_nobel_biden.sh">Biden</a></td>
+  <td width="20%" align="center"><a href="src/run_art_batman.sh">Batman</a></td>
+  <td width="20%" align="center"><a href="src/run_art_batman.sh">Batman (More Expressive)</a></td>
+  <td width="20%" align="center"><a href="src/run_cartoon_herry.sh">Herry Potter</a></td>
 </tr>
 <tr>
   <td width=10% align="center">Edtied image</td>
-  <td width=30% align="center"><img src="assets/repo_figures/examples/edit/nobel_Biden.jpg" raw=true></td>
-	<td width=30% align="center"><img src="assets/repo_figures/examples/edit/art_batman.jpg" raw=true></td>
-  <td width=30% align="center"><img src="assets/repo_figures/examples/edit/cartoon_herry.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/nobel_Biden.jpg" raw=true></td>
+	<td width=20% align="center"><img src="assets/repo_figures/examples/edit/art_batman.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/art_batman_v2.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/cartoon_herry.jpg" raw=true></td>
 </tr>
 </table>
 
-## Adding & Replacing
+## [4.2] Adding & Replacing
 <table class="center">
 <tr>
   <td width=10% align="center">Source image</td>
@@ -119,72 +96,98 @@ We have provided several scripts to reproduce the results in the paper, mainly i
 
 </table>
 
-
-# 🪄 Edit Your Own Image
-
-## Gradio Demo
-We privide the gradio demo for image editing. Run the following command:
-```
-cd src
-python gradio_demo.py
-```
-Here is an example for using the gradio demo to edit an image! Note that here "Number of inject steps" means the steps of feature sharing in RF-Edit, which is highly related to the quality of edited results. We suggest to tune this parameter, selecting the results with best visual quality.
-<div style="text-align: center;">
-  <img src="assets/repo_figures/Picture7.jpg" style="width:100%; display: block; margin: 0 auto;" />
-</div>
-
-
-## Command Line
-You can also run the following scripts to edit your own image. 
+## [4.3] Edit your own image
+Use the following script to perform fast editing:
 ```
 cd src
 python edit.py  --source_prompt [describe the content of your image or leaves it as null] \
                 --target_prompt [describe your editing requirements] \
                 --guidance 2 \
                 --source_img_dir [the path of your source image] \
-                --num_steps 30  \
-                --inject [typically set to a number between 2 to 8] \
-                --name 'flux-dev' --offload \
+                --num_steps 8  \
+                --inject 1 \
+                --start_layer_index 0 \
+                --end_layer_index 37 \
+                --name 'flux-dev' \
+                --sampling_strategy 'fireflow' \
+                --output_prefix 'fireflow' \
+                --offload \
                 --output_dir [output path] 
 ```
-Similarly, The ```--inject``` refers to the steps of feature sharing in RF-Edit, which is highly related to the performance of editing. 
-
-
-
-# 🖼️ Gallery
-## Inversion and Reconstruction  
-
-<p align="center">
-<img src="assets/repo_figures/Picture4.jpg" width="1080px"/>
-</p>
-
-## Image Editing
-
-<p align="center">
-<img src="assets/repo_figures/Picture5.jpg" width="1080px"/>
-</p>
-
-## Video Editing
-
-<p align="center">
-<img src="assets/repo_figures/Picture6.jpg" width="1080px"/>
-</p>
-
-# 🖋️ Citation
-
-If you find our work helpful, please **star 🌟** this repo and **cite 📑** our paper. Thanks for your support!
-
+**Tips:** If the above code **fails to capture the instructions** (such as "can not edit the color"), we provide several settings to help address the issues.
+-  Add More Steps / Enlarge Guidance
+```shell
+python edit.py  --source_prompt [describe the content of your image or leaves it as null] \
+                --target_prompt [describe your editing requirements] \
+                --guidance 3  \ # 2 -> 3
+                --source_img_dir [the path of your source image] \
+                --num_steps 15 \ # 8 -> 15
+                --inject 1 \
+                --start_layer_index 0 \
+                --end_layer_index 37 \
+                --name 'flux-dev' \
+                --sampling_strategy 'fireflow' \
+                --output_prefix 'fireflow' \
+                --offload \
+                --output_dir [output path] 
 ```
-@article{wang2024taming,
-  title={Taming Rectified Flow for Inversion and Editing},
-  author={Wang, Jiangshan and Pu, Junfu and Qi, Zhongang and Guo, Jiayi and Ma, Yue and Huang, Nisha and Chen, Yuxin and Li, Xiu and Shan, Ying},
-  journal={arXiv preprint arXiv:2411.04746},
-  year={2024}
-}
+- Using Other Editing Strategies (at the cost of losing the original structure)
+```shell
+python edit.py  --source_prompt [describe the content of your image or leaves it as null] \
+                --target_prompt [describe your editing requirements] \
+                --guidance 2 \
+                --source_img_dir [the path of your source image] \
+                --num_steps 8 \
+                --inject 1 \
+                --start_layer_index 0 \
+                --end_layer_index 37 \
+                --name 'flux-dev' \
+                --sampling_strategy 'fireflow' \
+                --output_prefix 'fireflow' \
+                --reuse_v 0 \ # 1 -> 0 to disable default editing strategy
+                --editing_strategy 'add_q' \ # 'replace_v' -> 'add_q' / 'add_k' / 'add_v'
+                --offload \
+                --output_dir [output path] 
+```
+**Tips:** If the above code **fails to perserve the original image**, we provide several settings to help address the issues.
+-  Add More Steps / More injected steps
+```shell
+python edit.py  --source_prompt [describe the content of your image or leaves it as null] \
+                --target_prompt [describe your editing requirements] \
+                --guidance 2  \
+                --source_img_dir [the path of your source image] \
+                --num_steps 15 \ # 8 -> 15
+                --inject 2 \ # 1 -> 2
+                --start_layer_index 0 \
+                --end_layer_index 37 \
+                --name 'flux-dev' \
+                --sampling_strategy 'fireflow' \
+                --output_prefix 'fireflow' \
+                --offload \
+                --output_dir [output path] 
+```
+- Using Other Editing Strategies (at the cost of losing the control)
+```shell
+python edit.py  --source_prompt [describe the content of your image or leaves it as null] \
+                --target_prompt [describe your editing requirements] \
+                --guidance 2 \
+                --source_img_dir [the path of your source image] \
+                --num_steps 8 \
+                --inject 1 \
+                --start_layer_index 0 \
+                --end_layer_index 37 \
+                --name 'flux-dev' \
+                --sampling_strategy 'fireflow' \
+                --output_prefix 'fireflow' \
+                --reuse_v 0 \ # 1 -> 0 to disable default editing strategy
+                --editing_strategy 'add_q replace_v' \ # 'replace_v' -> 'add_q replace_v' / 'add_k replace_v' / 'add_q add_k replace_v'
+                --offload \
+                --output_dir [output path] 
 ```
 
-# Acknowledgements
-We thank [FLUX](https://github.com/black-forest-labs/flux/tree/main) for their clean codebase.
+## [5] Acknowledgements
+We sincerely thank [RF-Solver](https://github.com/wangjiangshan0725/RF-Solver-Edit) and [FLUX](https://github.com/black-forest-labs/flux/tree/main) for their well-structured codebases. The support and contributions of the open-source community have been invaluable, and without their efforts, completing our work so efficiently would not have been possible. 
 
-# Contact
-The code in this repository is still being reorganized. Errors that may arise during the organizing process could lead to code malfunctions or discrepancies from the original research results. If you have any questions or concerns, please send email to wjs23@mails.tsinghua.edu.cn.
+Furthermore, I would like to extend my sincere thanks to the owner of RF-Solver's Repo for their prompt and helpful responses to all my questions regarding the code and the ideas presented in their paper. Their support has been invaluable and has greatly assisted me in my work.
+
+
