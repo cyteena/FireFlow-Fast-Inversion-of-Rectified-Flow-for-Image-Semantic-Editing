@@ -1,6 +1,6 @@
 # FireFlow: Fast Inversion of Rectified Flow for Image Semantic Editing
 
-> TL;DR: An 8-step inversion and 8-step editing process works effectively with the FLUX-dev model. (around 3x speedup with comparable results or even better)
+> TL;DR: An 8-step inversion and 8-step editing process works effectively with the FLUX-dev model. (3x speedup with results that are comparable or even superior to baseline methods)
 
 ## [1] Preview
 <img src="assets/teaser-1.jpg" width="1080px"/>
