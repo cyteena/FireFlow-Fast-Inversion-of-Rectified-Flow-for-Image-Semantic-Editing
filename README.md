@@ -2,6 +2,8 @@
 
 > TL;DR: An 8-step inversion and 8-step editing process works effectively with the FLUX-dev model. (3x speedup with results that are comparable or even superior to baseline methods)
 
+[![arXiv](https://img.shields.io/badge/arXiv-FireFlow-b31b1b.svg)](https://arxiv.org/abs/2412.07517)
+
 ## [1] Preview
 <img src="assets/teaser-1.jpg" width="1080px"/>
 
@@ -96,7 +98,7 @@ We have also provided several scripts to reproduce the results presented in the 
 
 </table>
 
-## [4.3] Edit your own image
+## [4.3] 🖌️ Edit your own image
 Use the following script to perform fast editing:
 ```
 cd src
@@ -114,7 +116,9 @@ python edit.py  --source_prompt [describe the content of your image or leaves it
                 --offload \
                 --output_dir [output path] 
 ```
-**Tips:** If the above code **fails to capture the instructions** (such as "can not edit the color"), we provide several settings to help address the issues.
+> [!TIP]
+> If the above code **fails to capture the instructions** (such as "can not edit the color"), we provide several settings to help address the issues.
+
 -  Add More Steps / Enlarge Guidance
 ```shell
 python edit.py  --source_prompt [describe the content of your image or leaves it as null] \
@@ -149,7 +153,8 @@ python edit.py  --source_prompt [describe the content of your image or leaves it
                 --offload \
                 --output_dir [output path] 
 ```
-**Tips:** If the above code **fails to perserve the original image**, we provide several settings to help address the issues.
+> [!TIP]
+> If the above code **fails to perserve the original image**, we provide several settings to help address the issues.
 -  Add More Steps / More injected steps
 ```shell
 python edit.py  --source_prompt [describe the content of your image or leaves it as null] \
@@ -185,9 +190,22 @@ python edit.py  --source_prompt [describe the content of your image or leaves it
                 --output_dir [output path] 
 ```
 
-## [5] Acknowledgements
+## [5] 💖 Acknowledgements
 We sincerely thank [RF-Solver](https://github.com/wangjiangshan0725/RF-Solver-Edit) and [FLUX](https://github.com/black-forest-labs/flux/tree/main) for their well-structured codebases. The support and contributions of the open-source community have been invaluable, and without their efforts, completing our work so efficiently would not have been possible. 
 
 Furthermore, I would like to extend my sincere thanks to the owner of RF-Solver's Repo for their prompt and helpful responses to all my questions regarding the code and the ideas presented in their paper. Their support has been invaluable and has greatly assisted me in my work.
+
+## [6] 🤝🏼 Cite Us
+```bib
+@misc{deng2024fireflowfastinversionrectified,
+      title={FireFlow: Fast Inversion of Rectified Flow for Image Semantic Editing}, 
+      author={Yingying Deng and Xiangyu He and Changwang Mei and Peisong Wang and Fan Tang},
+      year={2024},
+      eprint={2412.07517},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2412.07517}, 
+}
+```
 
 
