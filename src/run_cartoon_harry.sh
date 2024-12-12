@@ -1,6 +1,6 @@
 # Baseline
 # CUDA_VISIBLE_DEVICES=7 python edit.py  --source_prompt "" \
-#                 --target_prompt "a cartoon style Herry Potter raising his left hand " \
+#                 --target_prompt "a cartoon style Harry Potter raising his left hand " \
 #                 --guidance 2 \
 #                 --source_img_dir 'examples/source/cartoon.jpg' \
 #                 --num_steps 25 \
@@ -12,7 +12,7 @@
 
 # Fast Editing
 CUDA_VISIBLE_DEVICES=7 python edit.py  --source_prompt "" \
-                --target_prompt "a cartoon style Herry Potter raising his left hand " \
+                --target_prompt "a cartoon style Harry Potter raising his left hand " \
                 --guidance 2 \
                 --source_img_dir 'examples/source/cartoon.jpg' \
                 --num_steps 8 \
@@ -27,7 +27,7 @@ CUDA_VISIBLE_DEVICES=7 python edit.py  --source_prompt "" \
 
 # Better Instruction Following
 CUDA_VISIBLE_DEVICES=7 python edit.py  --source_prompt "" \
-                --target_prompt "a cartoon style Herry Potter raising his left hand " \
+                --target_prompt "a cartoon style Harry Potter raising his left hand " \
                 --guidance 2 \
                 --source_img_dir 'examples/source/cartoon.jpg' \
                 --num_steps 10 \

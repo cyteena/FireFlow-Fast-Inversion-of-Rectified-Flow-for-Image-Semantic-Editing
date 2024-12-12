@@ -46,6 +46,34 @@ We have also provided several scripts to reproduce the results presented in the 
 </tr>
 <tr>
   <td width="10%" align="center">Editing Scripts</td>
+  <td width="20%" align="center"><a href="src/run_nobel_lincoln.sh">Lincoln</a></td>
+  <td width="20%" align="center"><a href="src/run_art_mari.sh"> Ironman</a></td>
+  <td width="20%" align="center"><a href="src/run_art_mari.sh"> Ironman (More Expressive)</a></td>
+  <td width="20%" align="center"><a href="src/run_cartoon_chaplin.sh">Sir Charles Chaplin</a></td>
+</tr>
+<tr>
+  <td width=10% align="center">Edtied image</td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/nobel_Lincoln.jpg" raw=true></td>
+	<td width=20% align="center"><img src="assets/repo_figures/examples/edit/art_ironman.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/art_ironman_v2.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/cartoon_chaplin.jpg" raw=true></td>
+</tr>
+<tr>
+  <td width="10%" align="center">Editing Scripts</td>
+  <td width="20%" align="center"><a href="src/run_nobel_obama.sh">Obama</a></td>
+  <td width="20%" align="center"><a href="src/run_art_mari.sh"> Ultraman</a></td>
+  <td width="20%" align="center"><a href="src/run_art_mari.sh"> Ultraman (More Expressive)</a></td>
+  <td width="20%" align="center"><a href="src/run_cartoon_malfoy.sh">Draco Malfoy</a></td>
+</tr>
+<tr>
+  <td width=10% align="center">Edtied image</td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/nobel_Obama.jpg" raw=true></td>
+	<td width=20% align="center"><img src="assets/repo_figures/examples/edit/art_ultraman.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/art_ultraman_v2.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/cartoon_malfoy.jpg" raw=true></td>
+</tr>
+<tr>
+  <td width="10%" align="center">Editing Scripts</td>
   <td width="20%" align="center"><a href="src/run_nobel_trump.sh">Trump</a></td>
   <td width="20%" align="center"><a href="src/run_art_mari.sh"> Marilyn Monroe</a></td>
   <td width="20%" align="center"><a href="src/run_art_mari.sh"> Marilyn Monroe (More Expressive)</a></td>
@@ -64,18 +92,18 @@ We have also provided several scripts to reproduce the results presented in the 
   <td width="20%" align="center"><a href="src/run_nobel_biden.sh">Biden</a></td>
   <td width="20%" align="center"><a href="src/run_art_batman.sh">Batman</a></td>
   <td width="20%" align="center"><a href="src/run_art_batman.sh">Batman (More Expressive)</a></td>
-  <td width="20%" align="center"><a href="src/run_cartoon_herry.sh">Harry Potter</a></td>
+  <td width="20%" align="center"><a href="src/run_cartoon_harry.sh">Harry Potter</a></td>
 </tr>
 <tr>
   <td width=10% align="center">Edtied image</td>
   <td width=20% align="center"><img src="assets/repo_figures/examples/edit/nobel_Biden.jpg" raw=true></td>
 	<td width=20% align="center"><img src="assets/repo_figures/examples/edit/art_batman.jpg" raw=true></td>
   <td width=20% align="center"><img src="assets/repo_figures/examples/edit/art_batman_v2.jpg" raw=true></td>
-  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/cartoon_herry.jpg" raw=true></td>
+  <td width=20% align="center"><img src="assets/repo_figures/examples/edit/cartoon_harry.jpg" raw=true></td>
 </tr>
 </table>
 
-## [4.2] Adding & Replacing
+## [4.2] Adding & Replacing & Removing
 <table class="center">
 <tr>
   <td width=10% align="center">Source image</td>
@@ -94,6 +122,18 @@ We have also provided several scripts to reproduce the results presented in the 
   <td width=30% align="center"><img src="assets/repo_figures/examples/edit/hiking.jpg" raw=true></td>
 	<td width=30% align="center"><img src="assets/repo_figures/examples/edit/horse.jpg" raw=true></td>
   <td width=30% align="center"><img src="assets/repo_figures/examples/edit/boy.jpg" raw=true></td>
+</tr>
+<tr>
+  <td width="10%" align="center">Editing Scripts</td>
+  <td width="30%" align="center"><a href="src/run_boy.sh">woman -> man</a></td>
+  <td width="30%" align="center"><a href="src/run_horse.sh">+ boy</a></td>
+  <td width="30%" align="center"><a href="src/run_boy.sh">- plane</a></td>
+</tr>
+<tr>
+  <td width=10% align="center">Edtied image</td>
+  <td width=30% align="center"><img src="assets/repo_figures/examples/edit/hiking_v2.jpg" raw=true></td>
+	<td width=30% align="center"><img src="assets/repo_figures/examples/edit/horse_v2.jpg" raw=true></td>
+  <td width=30% align="center"><img src="assets/repo_figures/examples/edit/boy_v2.jpg" raw=true></td>
 </tr>
 
 </table>
