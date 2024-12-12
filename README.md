@@ -64,7 +64,7 @@ We have also provided several scripts to reproduce the results presented in the 
   <td width="20%" align="center"><a href="src/run_nobel_biden.sh">Biden</a></td>
   <td width="20%" align="center"><a href="src/run_art_batman.sh">Batman</a></td>
   <td width="20%" align="center"><a href="src/run_art_batman.sh">Batman (More Expressive)</a></td>
-  <td width="20%" align="center"><a href="src/run_cartoon_herry.sh">Herry Potter</a></td>
+  <td width="20%" align="center"><a href="src/run_cartoon_herry.sh">Harry Potter</a></td>
 </tr>
 <tr>
   <td width=10% align="center">Edtied image</td>
