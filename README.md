@@ -2,9 +2,16 @@
 
 > TL;DR: An 8-step inversion and 8-step editing process works effectively with the FLUX-dev model. (3x speedup with results that are comparable or even superior to baseline methods)
 
+<div align="center">
+	
 [![arXiv](https://img.shields.io/badge/arXiv-FireFlow-b31b1b.svg)](https://arxiv.org/abs/2412.07517)
 
-## [1] Preview
+</div>
+
+## [0] ✉️ News
+We are working with **logtd** to include this algorithm in **ComfyUI-Fluxtapoz** soon. Please refer to [the discussion](https://github.com/logtd/ComfyUI-Fluxtapoz/issues/56#issuecomment-2539416170) for more details.
+
+## [1] 👀 Preview
 <img src="assets/teaser-1.jpg" width="1080px"/>
 
 Inspired by recent ReFlow based editing approaches, we propose a novel numerical solver for ReFlow models, achieving second-order precision at the computational cost of a first-order method, providing a scalable and efficient solution for tasks such as image reconstruction and semantic editing.
