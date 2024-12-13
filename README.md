@@ -5,6 +5,7 @@
 <div align="center">
 	
 [![arXiv](https://img.shields.io/badge/arXiv-FireFlow-b31b1b.svg)](https://arxiv.org/abs/2412.07517)
+[![Huggingface space](https://img.shields.io/badge/🤗-Online%20Demo-blue.svg)](https://huggingface.co/spaces/MagicBag/FireFlow) 
 
 </div>
 
