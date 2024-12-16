@@ -12,7 +12,7 @@
 ## [0] ✉️ News
 - We are working with **logtd** to include this algorithm in **ComfyUI-Fluxtapoz** soon. Please refer to [the discussion](https://github.com/logtd/ComfyUI-Fluxtapoz/issues/56#issuecomment-2539416170) for more details.
 - Online demo is available at [HuggingFace Space](https://huggingface.co/spaces/MagicBag/FireFlow).
-- Local demo can be found in **[4.3.1] Using GUI**.
+- Local demo can be found in [[4.3.1] Using GUI](https://github.com/HolmesShuan/FireFlow-Fast-Inversion-of-Rectified-Flow-for-Image-Semantic-Editing?tab=readme-ov-file#431--using-gui).
 
 ## [1] 👀 Preview
 <img src="assets/teaser-1.jpg" width="1080px"/>
