@@ -55,7 +55,7 @@ class FluxEditor:
 
         if self.name not in configs:
             available = ", ".join(configs.keys())
-            raise ValueError(f"Got unknown model name: {name}, chose from {available}")
+            raise ValueError(f"Got unknown model name: {self.name}, chose from {available}")
 
         # init all components
         self.t5 = load_t5(self.device, max_length=256 if self.name == "flux-schnell" else 512)
@@ -66,29 +66,23 @@ class FluxEditor:
         self.clip.eval()
         self.ae.eval()
         self.model.eval()
-
+    
+    @torch.inference_mode()
+    def edit(self, init_image, source_prompt, target_prompt, editing_strategy, num_steps, inject_step, guidance):
+        torch.cuda.empty_cache()
+        seed = None
+        
         if self.offload:
             self.model.cpu()
             torch.cuda.empty_cache()
             self.ae.encoder.to(self.device)
-    
-    @torch.inference_mode()
-    def edit(self, init_image, source_prompt, target_prompt, num_steps, inject_step, guidance, seed):
-        torch.cuda.empty_cache()
-        seed = None
-        # if seed == -1:
-        #     seed = None
         
         shape = init_image.shape
-
         new_h = shape[0] if shape[0] % 16 == 0 else shape[0] - shape[0] % 16
         new_w = shape[1] if shape[1] % 16 == 0 else shape[1] - shape[1] % 16
-
         init_image = init_image[:new_h, :new_w, :]
-
         width, height = init_image.shape[0], init_image.shape[1]
         init_image = encode(init_image, self.device, self.ae)
-
         print(init_image.shape)
 
         rng = torch.Generator(device="cpu")
@@ -117,9 +111,12 @@ class FluxEditor:
         info = {}
         info['feature'] = {}
         info['inject_step'] = inject_step
+        info['editing_strategy']= " ".join(editing_strategy)
         info['start_layer_index'] = 0
         info['end_layer_index'] = 37
-        info['reuse_v']= True
+        info['reuse_v']= False
+        qkv_ratio = '1.0,1.0,1.0'
+        info['qkv_ratio'] = list(map(float, qkv_ratio.split(',')))
 
         if not os.path.exists(self.feature_path):
             os.mkdir(self.feature_path)
@@ -189,7 +186,6 @@ class FluxEditor:
             exif_data[ExifTags.Base.ImageDescription] = source_prompt
         img.save(fn, exif=exif_data, quality=95, subsampling=0)
 
-        
         print("End Edit")
         return img
 
@@ -198,17 +194,33 @@ class FluxEditor:
 def create_demo(model_name: str, device: str = "cuda" if torch.cuda.is_available() else "cpu", offload: bool = False):
     editor = FluxEditor(args)
     is_schnell = model_name == "flux-schnell"
+    
+    # Pre-defined examples
+    examples = [
+        ["gradio_examples/dog.jpg", "Photograph of a dog on the grass", "Photograph of a cat on the grass", ['replace_v'], 8, 1, 2.0],
+        ["gradio_examples/gold.jpg", "3d melting gold render", "a cat in the style of 3d melting gold render", ['replace_v'], 8, 1, 2.0],
+        ["gradio_examples/gold.jpg", "3d melting gold render", "a cat in the style of 3d melting gold render", ['replace_v'], 10, 1, 2.0],
+        ["gradio_examples/boy.jpg", "A young boy is playing with a toy airplane on the grassy front lawn of a suburban house, with a blue sky and fluffy clouds above.", "A young boy is sitting on the grassy front lawn of a suburban house, with a blue sky and fluffy clouds above.", ['replace_v'], 8, 1, 2.0],
+        ["gradio_examples/cartoon.jpg", "", "a cartoon style Albert Einstein raising his left hand", ['replace_v'], 8, 1, 2.0],
+        ["gradio_examples/cartoon.jpg", "", "a cartoon style Albert Einstein raising his left hand", ['replace_v'], 10, 1, 2.0],
+        ["gradio_examples/cartoon.jpg", "", "a cartoon style Albert Einstein raising his left hand", ['replace_v'], 15, 1, 2.0],
+        ["gradio_examples/art.jpg", "", "a vivid depiction of the Batman, featuring rich, dynamic colors,  and a blend of realistic and abstract elements with dynamic splatter art.", ['add_q'], 8, 1, 2.0],
+    ]
 
     with gr.Blocks() as demo:
-        gr.Markdown(f"# RF-Edit Demo (FLUX for image editing)")
+        gr.Markdown(f"# FireFlow Demo (FLUX for image editing)")
         
         with gr.Row():
             with gr.Column():
-                source_prompt = gr.Textbox(label="Source Prompt", value="")
-                target_prompt = gr.Textbox(label="Target Prompt", value="")
+                source_prompt = gr.Textbox(label="Source Prompt", value="(Optional) Describe the content of the uploaded image.")
+                target_prompt = gr.Textbox(label="Target Prompt", value="(Required) Describe the desired content of the edited image.")
                 init_image = gr.Image(label="Input Image", visible=True)
-                
-                
+                editing_strategy = gr.CheckboxGroup(
+                    label="Editing Technique",
+                    choices=['replace_v', 'add_q', 'add_k', 'add_v', 'replace_q', 'replace_k'],
+                    value=['replace_v'],  # Default: none selected
+                    interactive=True
+                )
                 generate_btn = gr.Button("Generate")
             
             with gr.Column():
@@ -216,15 +228,28 @@ def create_demo(model_name: str, device: str = "cuda" if torch.cuda.is_available
                     num_steps = gr.Slider(1, 30, 8, step=1, label="Number of steps")
                     inject_step = gr.Slider(1, 15, 1, step=1, label="Number of inject steps")
                     guidance = gr.Slider(1.0, 10.0, 2, step=0.1, label="Guidance", interactive=not is_schnell)
-                    # seed = gr.Textbox(0, label="Seed (-1 for random)", visible=False)
-                    # add_sampling_metadata = gr.Checkbox(label="Add sampling parameters to metadata?", value=False)
-                
                 output_image = gr.Image(label="Generated Image")
 
         generate_btn.click(
             fn=editor.edit,
-            inputs=[init_image, source_prompt, target_prompt, num_steps, inject_step, guidance],
+            inputs=[init_image, source_prompt, target_prompt, editing_strategy, num_steps, inject_step, guidance],
             outputs=[output_image]
+        )
+        
+        # Add examples
+        gr.Examples(
+            examples=examples,
+            inputs=[
+                init_image, 
+                source_prompt, 
+                target_prompt, 
+                editing_strategy, 
+                num_steps, 
+                inject_step, 
+                guidance
+            ],
+            outputs=[output_image],
+            fn=editor.edit,
         )
 
 
@@ -238,7 +263,6 @@ if __name__ == "__main__":
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Device to use")
     parser.add_argument("--offload", action="store_true", help="Offload model to CPU when not in use")
     parser.add_argument("--share", action="store_true", help="Create a public link to your demo")
-
     parser.add_argument("--port", type=int, default=41035)
     args = parser.parse_args()
 

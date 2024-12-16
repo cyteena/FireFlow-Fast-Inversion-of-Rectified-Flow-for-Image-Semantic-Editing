@@ -12,6 +12,7 @@
 ## [0] ✉️ News
 - We are working with **logtd** to include this algorithm in **ComfyUI-Fluxtapoz** soon. Please refer to [the discussion](https://github.com/logtd/ComfyUI-Fluxtapoz/issues/56#issuecomment-2539416170) for more details.
 - Online demo is available at [HuggingFace Space](https://huggingface.co/spaces/MagicBag/FireFlow).
+- Local demo can be found in **[4.3.1] Using GUI**.
 
 ## [1] 👀 Preview
 <img src="assets/teaser-1.jpg" width="1080px"/>
@@ -148,6 +149,15 @@ We have also provided several scripts to reproduce the results presented in the 
 </table>
 
 ## [4.3] 🖌️ Edit your own image
+### [4.3.1] 🎨 Using GUI
+Use the following script to launch Gradio for fast editing:
+```shell
+pip install gradio
+CUDA_VISIBLE_DEVICES=0 python gradio_demo.py # If OOM, add '--offload'
+```
+<img src="assets/repo_figures/gradio/gradio_demo.png" width="1080px"/>
+
+### [4.3.2] 🖥️ Using CLI
 Use the following script to perform fast editing:
 ```
 cd src
