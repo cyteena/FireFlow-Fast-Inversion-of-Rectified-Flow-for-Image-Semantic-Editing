@@ -6,11 +6,12 @@
 	
 [![arXiv](https://img.shields.io/badge/arXiv-FireFlow-b31b1b.svg)](https://arxiv.org/abs/2412.07517)
 [![Huggingface space](https://img.shields.io/badge/🤗-Online%20Demo-blue.svg)](https://huggingface.co/spaces/MagicBag/FireFlow) 
+[![ComfyUI](https://img.shields.io/badge/🎨ComfyUI-Demo-green.svg)](https://github.com/logtd/ComfyUI-Fluxtapoz) 
 
 </div>
 
 ## [0] ✉️ News
-- We are working with **logtd** to include this algorithm in **ComfyUI-Fluxtapoz** soon. Please refer to [the discussion](https://github.com/logtd/ComfyUI-Fluxtapoz/issues/56#issuecomment-2539416170) for more details.
+- I am pleased to see that @logtd has included this algorithm in ComfyUI-Fluxtapoz. For more details, please refer to [ComfyUI-Fluxtapoz](https://github.com/logtd/ComfyUI-Fluxtapoz).
 - Online demo is available at [HuggingFace Space](https://huggingface.co/spaces/MagicBag/FireFlow).
 - Local demo can be found in [[4.3.1] Using GUI](https://github.com/HolmesShuan/FireFlow-Fast-Inversion-of-Rectified-Flow-for-Image-Semantic-Editing?tab=readme-ov-file#431--using-gui).
 
