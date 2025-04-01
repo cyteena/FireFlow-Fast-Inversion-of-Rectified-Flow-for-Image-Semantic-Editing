@@ -50,7 +50,6 @@ if __name__ == "__main__":
     old_string = input("Enter the string to be replaced (default: 'fireflow'): ") or "fireflow"
     new_string = input("Enter the new string (default: 'ralston'): ") or "ralston"
     num_steps_input = input("Enter a list of num_steps values (integers) separated by commas (e.g., 5, 8, 15, 25): ")
-    num_steps_input = input("Enter a list of num_steps values separated by commas (e.g., 5,8,15,25): ")
     try:
         num_steps_list = [int(x.strip()) for x in num_steps_input.split(",")]
         modify_shell_scripts(num_steps_list, old_string, new_string)
