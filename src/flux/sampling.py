@@ -319,3 +319,157 @@ def unpack(x: Tensor, height: int, width: int) -> Tensor:
         ph=2,
         pw=2,
     )
+
+
+def denoise_adaptive(
+    model: Flux,
+    img: Tensor,
+    img_ids: Tensor,
+    txt: Tensor,
+    txt_ids: Tensor,
+    vec: Tensor,
+    timesteps: list[float],
+    inverse,
+    info,
+    guidance: float = 4.0,
+    acceleration_threshold: float = 5.0,  # 曲率变化阈值
+    min_step_ratio: float = 0.5        # 最小步长比例
+):
+    inject_list = [True] * info['inject_step'] + [False] * (len(timesteps[:-1]) - info['inject_step'])
+    
+    if inverse:
+        timesteps = timesteps[::-1]
+        inject_list = inject_list[::-1]
+    
+    guidance_vec = torch.full((img.shape[0],), guidance, device=img.device, dtype=img.dtype)
+    
+    # 转换为可修改的列表
+    remaining_steps = list(zip(timesteps[:-1], timesteps[1:]))
+
+    info['forward_steps'] = info.get('forward_steps', 0)
+    
+    while remaining_steps:
+        t_curr, t_prev = remaining_steps.pop(0)
+        delta_t = t_prev - t_curr
+        
+        # 第一次预测
+        t_vec = torch.full_like(img[:,0,0], t_curr)
+        info['t'] = t_prev if inverse else t_curr
+        info['inverse'] = inverse
+        info['second_order'] = False
+        info['inject'] = inject_list[len(timesteps)-len(remaining_steps)-2]
+        
+        pred, info = model(
+            img=img,
+            img_ids=img_ids,
+            txt=txt,
+            txt_ids=txt_ids,
+            y=vec,
+            timesteps=t_vec,
+            guidance=guidance_vec,
+            info=info
+        )
+        info['forward_steps'] += 1
+        
+        # 中间点预测
+        img_mid = img + delta_t/2 * pred
+        t_mid = t_curr + delta_t/2
+        
+        # 第二次预测（用于曲率计算）
+        pred_mid, _ = model(
+            img=img_mid,
+            img_ids=img_ids,
+            txt=txt,
+            txt_ids=txt_ids,
+            y=vec,
+            timesteps=torch.full_like(img[:,0,0], t_mid),
+            guidance=guidance_vec,
+            info=info
+        )
+        info['forward_steps'] += 1
+        
+        # 计算曲率变化
+        acceleration = torch.mean(torch.abs(pred_mid - pred) / (delta_t/2 + 1e-6))
+        step_ratio = 1.0 if acceleration < acceleration_threshold else min_step_ratio
+        
+        # 调整实际使用的步长
+        actual_delta_t = delta_t * step_ratio
+        if step_ratio < 1.0:
+            # 插入新的时间步
+            new_t = t_curr + actual_delta_t
+            remaining_steps.insert(0, (new_t, t_prev))
+        
+        # 最终更新
+        img = img + actual_delta_t * pred + 0.5 * (actual_delta_t**2) * (pred_mid - pred)/ (delta_t/2)
+    
+    return img, info
+
+def denoist_Ralston(
+        model: Flux,
+        img: Tensor,
+        img_ids: Tensor,
+        txt: Tensor,
+        txt_ids: Tensor,
+        vec: Tensor,
+        timesteps: list[float],
+        inverse,
+        info,
+        guidance: float = 4.0
+):
+    """
+    Ralston Method:
+
+    k1 = h * f(t_i, y_i)
+    k2 = h * f(t_i + (2/3)h, y_i + (2/3)k1)
+    y_{i+1} = y_i + (1/3)k1 + (2/3)k2
+
+    """
+    # this is ignored for schnell, only inject at the first serval steps
+    inject_list = [True] * info['inject_step'] + [False] * (len(timesteps[:-1]) - info['inject_step'])
+
+    if inverse:
+        timesteps = timesteps[::-1]
+        inject_list = inject_list[::-1]
+
+    guidance_vec = torch.full((img.shape[0],), guidance, device=img.device, dtype=img.dtype)
+
+    for i, (t_curr, t_prev) in enumerate(zip(timesteps[:-1], timesteps[1:])):
+        t_vec = torch.full((img.shape[0],), t_curr, dtype=img.dtype, device=img.device)
+        info['t'] = t_prev if inverse else t_curr
+        info['inverse'] = inverse
+        info['inject'] = inject_list[i]
+        info['second_order'] = False
+
+        pred, info = model(
+            img=img,
+            img_ids = img_ids,
+            txt=txt,
+            txt_ids=txt_ids,
+            y=vec,
+            timesteps=t_vec,
+            guidance=guidance_vec,
+            info=info
+        )
+
+        k1 = pred * (t_prev - t_curr)
+
+        img_mid = img + (2/3) * k1
+        t_vec_mid = torch.full((img.shape[0],), (t_curr + 2/3 *(t_prev - t_curr)), dtype=img.dtype, device=img.device)
+        info['second_order'] = True 
+
+        pred_mid, info = model(
+            img = img_mid,
+            img_ids = img_ids,
+            txt = txt,
+            txt_ids = txt_ids,
+            y = vec,
+            timesteps = t_vec_mid,
+            guidance = guidance_vec,
+            info = info
+            )
+
+        k2 = (t_prev - t_curr) * pred_mid
+
+        img = img + 1/3 * k1 + 2/3 * k2
+
+    return img, info 

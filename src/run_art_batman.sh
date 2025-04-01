@@ -38,6 +38,15 @@ CUDA_VISIBLE_DEVICES=0 python edit.py  --source_prompt "" \
                 --name 'flux-dev'  \
                 --reuse_v 0 \
                 --editing_strategy 'add_q' \
-                --sampling_strategy 'fireflow' \
+                --sampling_strategy 'ralston_solver' \
                 --output_prefix 'fireflow_add_q' \
                 --output_dir 'examples/edit-result/art/' 
+
+# denoise_strategies = {
+#     'reflow' : denoise,
+#     'rf_solver' : denoise_rf_solver,
+#     'fireflow' : denoise_fireflow,
+#     'rf_midpoint' : denoise_midpoint,
+#     'ada_solver' : denoise_adaptive,
+#     'ralston_solver' : denoist_Ralston
+# }

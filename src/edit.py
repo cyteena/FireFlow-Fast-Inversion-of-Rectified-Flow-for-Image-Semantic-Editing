@@ -9,7 +9,7 @@ from einops import rearrange
 from fire import Fire
 from PIL import ExifTags, Image
 
-from flux.sampling import denoise_midpoint, denoise_fireflow, denoise_rf_solver, denoise, get_schedule, prepare, unpack
+from flux.sampling import denoise_adaptive, denoist_Ralston, denoise_midpoint, denoise_fireflow, denoise_rf_solver, denoise, get_schedule, prepare, unpack
 from flux.util import (configs, embed_watermark, load_ae, load_clip,
                        load_flow_model, load_t5, save_velocity_distribution)
 from transformers import pipeline
@@ -175,6 +175,8 @@ def main(
             'rf_solver' : denoise_rf_solver,
             'fireflow' : denoise_fireflow,
             'rf_midpoint' : denoise_midpoint,
+            'ada_solver' : denoise_adaptive,
+            'ralston_solver' : denoist_Ralston
         }
         if args.sampling_strategy not in denoise_strategies:
             raise ExceptionType("Unknown denoising strategy")
@@ -239,11 +241,11 @@ def main(
             # else:
             #     print("Your generated image may contain NSFW content.")
 
-            # if loop:
-            #     print("-" * 80)
-            #     opts = parse_prompt(opts)
-            # else:
-            #     opts = None
+            if loop:
+                print("-" * 80)
+                opts = parse_prompt(opts)
+            else:
+                opts = None
 
 if __name__ == "__main__":
     
