@@ -11,7 +11,7 @@
 #                 --output_dir 'examples/edit-result/art/' 
 
 # Fast Editing
-CUDA_VISIBLE_DEVICES=7 python edit.py  --source_prompt "" \
+CUDA_VISIBLE_DEVICES=0 python edit.py  --source_prompt "" \
                 --target_prompt "a vivid depiction of the Batman, featuring rich, dynamic colors,  and a blend of realistic and abstract elements with dynamic splatter art." \
                 --guidance 2 \
                 --source_img_dir 'examples/source/art.jpg' \
@@ -26,7 +26,7 @@ CUDA_VISIBLE_DEVICES=7 python edit.py  --source_prompt "" \
                 --output_dir 'examples/edit-result/art/'
 
 # Better Instruction Following
-CUDA_VISIBLE_DEVICES=7 python edit.py  --source_prompt "" \
+CUDA_VISIBLE_DEVICES=0 python edit.py  --source_prompt "" \
                 --target_prompt "a vivid depiction of the Batman, featuring rich, dynamic colors,  and a blend of realistic and abstract elements with dynamic splatter art." \
                 --guidance 2 \
                 --source_img_dir 'examples/source/art.jpg' \

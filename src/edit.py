@@ -18,7 +18,7 @@ import numpy as np
 
 import os
 
-NSFW_THRESHOLD = 0.85
+# NSFW_THRESHOLD = 0.85
 
 @dataclass
 class SamplingOptions:
@@ -46,7 +46,7 @@ def main(
     device: str = "cuda" if torch.cuda.is_available() else "cpu",
     num_steps: int | None = None,
     loop: bool = False,
-    offload: bool = False,
+    offload: bool = True,
     add_sampling_metadata: bool = True,
 ):
     """
@@ -81,7 +81,7 @@ def main(
     end_layer_index = args.end_layer_index
     seed = args.seed if args.seed > 0 else None
 
-    nsfw_classifier = pipeline("image-classification", model="Falconsai/nsfw_image_detection", device=device)
+    # nsfw_classifier = pipeline("image-classification", model="Falconsai/nsfw_image_detection", device=device)
 
     if name not in configs:
         available = ", ".join(configs.keys())
@@ -154,6 +154,8 @@ def main(
         prefix += '_inject_' + str(inject)
         prefix += '_start_layer_index_' + str(start_layer_index)
         prefix += '_end_layer_index_' + str(end_layer_index)
+        prefix += '_nums_steps_' + str(num_steps)
+        prefix += '_inject_step_' + str(inject)
         
         if not os.path.exists(args.feature_path):
             os.mkdir(args.feature_path)
@@ -223,25 +225,25 @@ def main(
             x = rearrange(x[0], "c h w -> h w c")
 
             img = Image.fromarray((127.5 * (x + 1.0)).cpu().byte().numpy())
-            nsfw_score = [x["score"] for x in nsfw_classifier(img) if x["label"] == "nsfw"][0]
+            # nsfw_score = [x["score"] for x in nsfw_classifier(img) if x["label"] == "nsfw"][0]
             
-            if nsfw_score < NSFW_THRESHOLD:
-                exif_data = Image.Exif()
-                exif_data[ExifTags.Base.Software] = "AI generated;txt2img;flux"
-                exif_data[ExifTags.Base.Make] = "Black Forest Labs"
-                exif_data[ExifTags.Base.Model] = name
-                if add_sampling_metadata:
-                    exif_data[ExifTags.Base.ImageDescription] = source_prompt
-                img.save(fn, exif=exif_data, quality=95, subsampling=0)
-                idx += 1
-            else:
-                print("Your generated image may contain NSFW content.")
+            # if nsfw_score < NSFW_THRESHOLD:
+            exif_data = Image.Exif()
+            exif_data[ExifTags.Base.Software] = "AI generated;txt2img;flux"
+            exif_data[ExifTags.Base.Make] = "Black Forest Labs"
+            exif_data[ExifTags.Base.Model] = name
+            if add_sampling_metadata:
+                exif_data[ExifTags.Base.ImageDescription] = source_prompt
+            img.save(fn, exif=exif_data, quality=95, subsampling=0)
+            idx += 1
+            # else:
+            #     print("Your generated image may contain NSFW content.")
 
-            if loop:
-                print("-" * 80)
-                opts = parse_prompt(opts)
-            else:
-                opts = None
+            # if loop:
+            #     print("-" * 80)
+            #     opts = parse_prompt(opts)
+            # else:
+            #     opts = None
 
 if __name__ == "__main__":
     

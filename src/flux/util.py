@@ -114,7 +114,8 @@ def load_flow_model(name: str, device: str | torch.device = "cuda", hf_download:
         and configs[name].repo_flow is not None
         and hf_download
     ):
-        ckpt_path = hf_hub_download(configs[name].repo_id, configs[name].repo_flow)
+        # ckpt_path = hf_hub_download(configs[name].repo_id, configs[name].repo_lsflow, local_files_only=True)
+        ckpt_path = "/root/autodl-fs/hub/models--black-forest-labs--FLUX.1-dev/snapshots/0ef5fff789c832c5c7f4e127f94c8b54bbcced44/flux1-dev.safetensors"
 
     with torch.device("meta" if ckpt_path is not None else device):
         model = Flux(configs[name].params).to(torch.bfloat16)
@@ -130,11 +131,11 @@ def load_flow_model(name: str, device: str | torch.device = "cuda", hf_download:
 
 def load_t5(device: str | torch.device = "cuda", max_length: int = 512) -> HFEmbedder:
     # max length 64, 128, 256 and 512 should work (if your sequence is short enough)
-    return HFEmbedder("google/t5-v1_1-xxl", max_length=max_length, is_clip=False, torch_dtype=torch.bfloat16).to(device)
+    return HFEmbedder("/root/autodl-fs/hub/models--google--t5-v1_1-xxl/snapshots/3db67ab1af984cf10548a73467f0e5bca2aaaeb2", max_length=max_length, is_clip=False, torch_dtype=torch.bfloat16).to(device)
 
 
 def load_clip(device: str | torch.device = "cuda") -> HFEmbedder:
-    return HFEmbedder("openai/clip-vit-large-patch14", max_length=77, is_clip=True, torch_dtype=torch.bfloat16).to(device)
+    return HFEmbedder("/root/autodl-fs/hub/models--openai--clip-vit-large-patch14/snapshots/32bd64288804d66eefd0ccbe215aa642df71cc41", max_length=77, is_clip=True, torch_dtype=torch.bfloat16).to(device)
 
 
 def load_ae(name: str, device: str | torch.device = "cuda", hf_download: bool = True) -> AutoEncoder:
@@ -145,7 +146,8 @@ def load_ae(name: str, device: str | torch.device = "cuda", hf_download: bool = 
         and configs[name].repo_ae is not None
         and hf_download
     ):
-        ckpt_path = hf_hub_download(configs[name].repo_id, configs[name].repo_ae)
+        # ckpt_path = hf_hub_download(configs[name].repo_id, configs[name].repo_ae, local_files_only=True)
+        ckpt_path = "/root/autodl-fs/hub/models--black-forest-labs--FLUX.1-dev/snapshots/0ef5fff789c832c5c7f4e127f94c8b54bbcced44/ae.safetensors"
 
     # Loading the autoencoder
     print("Init AE")
