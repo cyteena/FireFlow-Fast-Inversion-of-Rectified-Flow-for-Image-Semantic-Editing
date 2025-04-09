@@ -473,3 +473,126 @@ def denoist_Ralston(
         img = img + 1/3 * k1 + 2/3 * k2
 
     return img, info 
+
+def denoise_diffusion(
+        model: Flux,
+        img: Tensor,
+        img_ids: Tensor,
+        txt: Tensor,
+        txt_ids: Tensor,
+        vec: Tensor,
+        timesteps: list[float],
+        inverse,
+        info,
+        guidance: float = 4.0
+):
+    """
+    dX_t = (u^{theta}_t(x) + 1/2 sigma^2 score_t^{theta}(x))*dt + sigma*dW_t
+
+    p_t(x|z) = N(x; alpha_t z, beta_t^2 I_d)
+
+    alpha_t =  t, beta_t^2 = 1 - t --> x = t * z + sqrt(1 - t) epsilon --> epsilon ~ N(0, Id)
+
+    score_t(x) = (alpha_t * u_t (x) - d(alpha_t) * x) / (beta_t^2 * d(alpha_t) - alpha_t * d(beta_t) * beta_t)
+    """
+
+    # this is ignored for schnell, only inject at the first serval steps
+    inject_list = [True] * info['inject_step'] + [False] * (len(timesteps[:-1]) - info['inject_step'])
+
+    if inverse:
+        timesteps = timesteps[::-1]
+        inject_list = inject_list[::-1]
+
+    guidance_vec = torch.full((img.shape[0],), guidance, device=img.device, dtype=img.dtype)
+
+    for i, (t_curr, t_prev) in enumerate(zip(timesteps[:-1], timesteps[1:])):
+        t_vec = torch.full((img.shape[0],), t_curr, dtype=img.dtype, device=img.device)
+        info['t'] = t_prev if inverse else t_curr
+        info['inverse'] = inverse
+        info['inject'] = inject_list[i]
+        info['second_order'] = False
+
+        # u^{theta}_t(x)
+        pred, info = model(
+            img=img,
+            img_ids = img_ids,
+            txt=txt,
+            txt_ids=txt_ids,
+            y=vec,
+            timesteps=t_vec,
+            guidance=guidance_vec,
+            info=info
+        )
+
+        #transform into score
+        score = (t_curr * pred - img) / (1- t_curr / 2)
+
+        #following the SDE equation
+        sigma = 0.001
+        GaussianNoise = torch.randn_like(img) # sigma dW_t = sigma * sqrt(t - s) * epsilon
+        
+        img = img + (pred + 0.5 * sigma**2 * score)*(t_prev - t_curr) + sigma * torch.sqrt(torch.abs(torch.tensor(t_prev - t_curr))) * GaussianNoise
+
+    return img, info 
+
+def denoise_diffusion_sigma_timedependent(
+        model: Flux,
+        img: Tensor,
+        img_ids: Tensor,
+        txt: Tensor,
+        txt_ids: Tensor,
+        vec: Tensor,
+        timesteps: list[float],
+        inverse,
+        info,
+        guidance: float = 4.0
+):
+    """
+    sigma = 0.001 * e^{-5t}
+    dX_t = (u^{theta}_t(x) + 1/2 sigma^2 score_t^{theta}(x))*dt + sigma*dW_t
+
+    p_t(x|z) = N(x; alpha_t z, beta_t^2 I_d)
+
+    alpha_t =  t, beta_t^2 = 1 - t --> x = t * z + sqrt(1 - t) epsilon --> epsilon ~ N(0, Id)
+
+    score_t(x) = (alpha_t * u_t (x) - d(alpha_t) * x) / (beta_t^2 * d(alpha_t) - alpha_t * d(beta_t) * beta_t)
+    """
+
+    # this is ignored for schnell, only inject at the first serval steps
+    inject_list = [True] * info['inject_step'] + [False] * (len(timesteps[:-1]) - info['inject_step'])
+
+    if inverse:
+        timesteps = timesteps[::-1]
+        inject_list = inject_list[::-1]
+
+    guidance_vec = torch.full((img.shape[0],), guidance, device=img.device, dtype=img.dtype)
+
+    for i, (t_curr, t_prev) in enumerate(zip(timesteps[:-1], timesteps[1:])):
+        t_vec = torch.full((img.shape[0],), t_curr, dtype=img.dtype, device=img.device)
+        info['t'] = t_prev if inverse else t_curr
+        info['inverse'] = inverse
+        info['inject'] = inject_list[i]
+        info['second_order'] = False
+
+        # u^{theta}_t(x)
+        pred, info = model(
+            img=img,
+            img_ids = img_ids,
+            txt=txt,
+            txt_ids=txt_ids,
+            y=vec,
+            timesteps=t_vec,
+            guidance=guidance_vec,
+            info=info
+        )
+
+        #transform into score
+        score = (t_curr * pred - img) / (1- t_curr / 2)
+
+        #following the SDE equation
+        sigma = 0.001 * torch.exp(-5 * torch.tensor(t_curr))
+        GaussianNoise = torch.randn_like(img) # sigma dW_t = sigma * sqrt(t - s) * epsilon
+        
+        img = img + (pred + 0.5 * sigma**2 * score)*(t_prev - t_curr) + sigma * torch.sqrt(torch.abs(torch.tensor(t_prev - t_curr))) * GaussianNoise
+
+    return img, info 
